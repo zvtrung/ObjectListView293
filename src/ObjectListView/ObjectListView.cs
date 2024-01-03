@@ -1,4 +1,4 @@
-/*
+﻿/*
  * ObjectListView - A listview to show various aspects of a collection of objects
  *
  * Author: Phillip Piper
@@ -7159,7 +7159,42 @@ namespace BrightIdeasSoftware
                 }
             }
 
+            label = "Chép tất cả dữ liệu vào clipboard...";
+            //var imgIcon = BrightIdeasSoftware.Properties.Resources.co
+            strip.Items.Add(label, null, (EventHandler)delegate (object sender, EventArgs args) {
+                var grid = this;
+                
+                if (1 == 0) {
+                    // MessageBox.Show("Đây là menu minh hoạ");                   
+                    var idxSelection = grid.SelectedIndex;
+                    var oldMultiSelect = grid.MultiSelect;
+                    grid.MultiSelect = true;
+
+                    grid.SelectAll();
+                    var lst = this.SelectedObjects;
+                    lst.Insert(0, grid.Columns);
+                    grid.CopyObjectsToClipboard(grid.SelectedObjects);
+                    grid.DeselectAll();
+
+                    grid.MultiSelect = oldMultiSelect;
+                    if (idxSelection >= 0)
+                        grid.SelectedIndex = idxSelection;
+                }
+
+                this.CopyAllGridDataToClipboard();
+                MessageBox.Show("Đã sao chép dữ liệu vào clipboard");
+            });
+
             return strip;
+        }
+
+        public virtual void CopyAllGridDataToClipboard()
+        {
+            var grid = this;
+            ArrayList list = new ArrayList();
+            for (int index = 0; index < grid.Items.Count; index++)
+                list.Add(grid.GetModelObject(index));
+            grid.CopyObjectsToClipboard(list);
         }
 
         /// <summary>
@@ -9429,6 +9464,13 @@ namespace BrightIdeasSoftware
             // Treat Ctrl-C as Copy To Clipboard. 
             if (this.CopySelectionOnControlC && keyData == (Keys.C | Keys.Control)) {
                 this.CopySelectionToClipboard();
+                return true;
+            }
+
+            // Treat Ctrl-Shift-C as Copy all data to Clipboard
+            if (this.CopySelectionOnControlC && keyData == (Keys.C | Keys.Control | Keys.Shift))
+            {
+                this.CopyAllGridDataToClipboard();
                 return true;
             }
 
